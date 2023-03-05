@@ -30,7 +30,7 @@ func main() {
 	w.SetHtml(string(b))
 
 	w.Bind("__WRITE_PTY", func(command string) {
-		p.WriteString(command + "\n")
+		p.WriteString(command)
 	})
 
 	go func() {
@@ -53,7 +53,6 @@ func main() {
 
 			fn := fmt.Sprintf(`window.__WRITE_TERMINAL(%s);`, string(payload))
 			w.Eval(fn)
-			time.Sleep(200 * time.Millisecond)
 		}
 	}()
 
