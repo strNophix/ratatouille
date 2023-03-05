@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"io/ioutil"
+	"os"
 	"os/exec"
 	"time"
 
@@ -11,7 +12,7 @@ import (
 	"github.com/webview/webview"
 )
 
-type PtyOutEvent struct {
+type PtyRespEvent struct {
 	Result string `json:"result"`
 }
 
@@ -23,7 +24,7 @@ func main() {
 	defer w.Destroy()
 
 	w.SetTitle("Ratatouille")
-	w.SetSize(480, 320, webview.HintNone)
+	w.SetSize(720, 432, webview.HintFixed)
 
 	b, _ := ioutil.ReadFile("frontend/dist/index.html")
 	w.SetHtml(string(b))
@@ -33,16 +34,18 @@ func main() {
 	})
 
 	go func() {
+		time.Sleep(500 * time.Millisecond)
 		for {
 			buf := make([]byte, 1024)
-			n, _ := p.Read(buf)
-			if n == 0 {
-				continue
+			n, err := p.Read(buf)
+			if err != nil {
+				fmt.Fprintln(os.Stderr, err)
 			}
 
 			result := string(buf)
-			event := PtyOutEvent{Result: result[:n]}
+			event := PtyRespEvent{Result: result[:n]}
 			payload, err := json.Marshal(event)
+
 			if err != nil {
 				fmt.Println("Whoopsie", err)
 				continue

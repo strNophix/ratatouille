@@ -1,25 +1,27 @@
 import { Terminal } from "xterm";
 
-const term = new Terminal({
-	fontFamily:
-		'"Fira Code", courier-new, courier, monospace, "Powerline Extra Symbols"',
-});
+const term = new Terminal();
 
-let line = "";
+let command = "";
 
 term.onKey(({ key, domEvent }) => {
-	const printable = !(domEvent.altKey || domEvent.ctrlKey || domEvent.metaKey);
+	const isPrintable = !(
+		domEvent.altKey ||
+		domEvent.ctrlKey ||
+		domEvent.metaKey
+	);
+
 	if (domEvent.key === "Enter") {
 		//@ts-ignore
-		window.__WRITE_PTY(line);
+		window.__WRITE_PTY(command);
 		term.writeln("");
-		line = "";
+		command = "";
 		return;
 	}
 
-	if (printable) {
+	if (isPrintable) {
 		term.write(key);
-		line += key;
+		command += key;
 	}
 });
 
